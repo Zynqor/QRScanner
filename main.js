@@ -16,7 +16,7 @@ function createTray() {
   const iconPath = path.join(__dirname, 'assets', 'icon.png');
   tray = new Tray(iconPath);
 
-  const contextMenu = Menu.buildFromTemplate([
+  const menuTemplate = [
     {
       label: '打开设置',
       click: () => {
@@ -35,15 +35,29 @@ function createTray() {
       click: () => {
         toggleAutoStart();
       }
-    },
-    { type: 'separator' },
-    {
-      label: '退出',
-      click: () => {
-        app.quit();
-      }
     }
-  ]);
+  ];
+
+  // Windows 平台添加卸载选项
+  if (process.platform === 'win32') {
+    menuTemplate.push({ type: 'separator' });
+    menuTemplate.push({
+      label: '卸载程序',
+      click: () => {
+        openUninstaller();
+      }
+    });
+  }
+
+  menuTemplate.push({ type: 'separator' });
+  menuTemplate.push({
+    label: '退出',
+    click: () => {
+      app.quit();
+    }
+  });
+
+  const contextMenu = Menu.buildFromTemplate(menuTemplate);
 
   tray.setToolTip('QR Scanner - 二维码扫描工具');
   tray.setContextMenu(contextMenu);
@@ -135,6 +149,36 @@ function toggleAutoStart() {
 
   store.set('autoStart', newValue);
   createTray(); // 重新创建托盘菜单以更新显示
+}
+
+// 打开卸载程序
+function openUninstaller() {
+  if (process.platform === 'win32') {
+    // 方式一：直接运行卸载程序（NSIS 会在安装目录创建 Uninstall.exe）
+    const uninstallerPath = path.join(path.dirname(app.getPath('exe')), 'Uninstall QR Scanner.exe');
+    const fs = require('fs');
+
+    if (fs.existsSync(uninstallerPath)) {
+      exec(`"${uninstallerPath}"`, (error) => {
+        if (error) {
+          // 如果直接运行失败，打开控制面板
+          openControlPanel();
+        }
+      });
+    } else {
+      // 如果找不到卸载程序，打开控制面板
+      openControlPanel();
+    }
+  }
+}
+
+// 打开 Windows 控制面板的卸载程序页面
+function openControlPanel() {
+  exec('appwiz.cpl', (error) => {
+    if (error) {
+      console.error('无法打开控制面板:', error);
+    }
+  });
 }
 
 // 注册全局快捷键
