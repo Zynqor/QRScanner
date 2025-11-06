@@ -3,6 +3,15 @@ const path = require('path');
 const Store = require('electron-store');
 const { exec } = require('child_process');
 
+// 设置应用名称（避免显示 "Electron"）
+app.name = 'QR Scanner';
+app.setName('QR Scanner');
+
+// Windows 平台设置 AppUserModelId（确保通知显示正确的应用名称）
+if (process.platform === 'win32') {
+  app.setAppUserModelId('com.qrscanner.app');
+}
+
 const store = new Store();
 let tray = null;
 let settingsWindow = null;
@@ -124,9 +133,25 @@ function showSettingsWindow() {
 // 截图功能
 async function captureScreen() {
   try {
+    // 获取鼠标当前位置
+    const cursorPoint = screen.getCursorScreenPoint();
+
+    // 获取鼠标所在的显示器
+    const currentDisplay = screen.getDisplayNearestPoint(cursorPoint);
+
+    // 获取所有显示器
+    const allDisplays = screen.getAllDisplays();
+
+    // 找到当前显示器的索引
+    const displayIndex = allDisplays.findIndex(d => d.id === currentDisplay.id);
+
+    // 获取屏幕截图源
     const sources = await desktopCapturer.getSources({
       types: ['screen'],
-      thumbnailSize: screen.getPrimaryDisplay().workAreaSize
+      thumbnailSize: {
+        width: currentDisplay.size.width * currentDisplay.scaleFactor,
+        height: currentDisplay.size.height * currentDisplay.scaleFactor
+      }
     });
 
     if (sources.length === 0) {
@@ -134,15 +159,20 @@ async function captureScreen() {
       return;
     }
 
-    // 创建截图窗口
-    const { width, height } = screen.getPrimaryDisplay().bounds;
+    // 选择对应的屏幕源（通常索引一致）
+    const targetSource = sources[displayIndex] || sources[0];
 
+    // 在鼠标所在的显示器上创建全屏截图窗口
     screenshotWindow = new BrowserWindow({
       fullscreen: true,
       frame: false,
       transparent: true,
       alwaysOnTop: true,
       skipTaskbar: true,
+      x: currentDisplay.bounds.x,
+      y: currentDisplay.bounds.y,
+      width: currentDisplay.bounds.width,
+      height: currentDisplay.bounds.height,
       webPreferences: {
         nodeIntegration: true,
         contextIsolation: false
@@ -153,7 +183,7 @@ async function captureScreen() {
 
     // 发送屏幕截图数据
     screenshotWindow.webContents.on('did-finish-load', () => {
-      screenshotWindow.webContents.send('screenshot-source', sources[0].thumbnail.toDataURL());
+      screenshotWindow.webContents.send('screenshot-source', targetSource.thumbnail.toDataURL());
     });
 
     screenshotWindow.on('closed', () => {

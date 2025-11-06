@@ -158,28 +158,35 @@ function recognizeQRCode(x, y, width, height) {
   // 使用 setTimeout 让UI有时间更新
   setTimeout(() => {
     try {
-      // 创建临时画布
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = width;
-      tempCanvas.height = height;
-      const tempCtx = tempCanvas.getContext('2d');
-
-      // 绘制选择区域的原始图像
+      // 计算原始图像的缩放比例
       const scaleX = screenshotImage.width / canvas.width;
       const scaleY = screenshotImage.height / canvas.height;
 
+      // 计算原始图像中的选择区域（保持原始分辨率，不降采样）
+      const srcX = x * scaleX;
+      const srcY = y * scaleY;
+      const srcWidth = width * scaleX;
+      const srcHeight = height * scaleY;
+
+      // 创建临时画布，使用原始尺寸（不降采样）
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = srcWidth;
+      tempCanvas.height = srcHeight;
+      const tempCtx = tempCanvas.getContext('2d');
+
+      // 绘制选择区域的原始图像（保持原始分辨率）
       tempCtx.drawImage(
         screenshotImage,
-        x * scaleX, y * scaleY, width * scaleX, height * scaleY,
-        0, 0, width, height
+        srcX, srcY, srcWidth, srcHeight,
+        0, 0, srcWidth, srcHeight
       );
 
       // 获取图像数据
-      const imageData = tempCtx.getImageData(0, 0, width, height);
+      const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
 
-      // 使用 jsQR 识别
+      // 使用 jsQR 识别，启用多种识别尝试
       const code = jsQR(imageData.data, imageData.width, imageData.height, {
-        inversionAttempts: "dontInvert",
+        inversionAttempts: "attemptBoth",
       });
 
       if (code) {
