@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest, macos-latest]
 
     steps:
       - name: Checkout code
@@ -43,10 +43,6 @@ jobs:
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
-      - name: Build Linux
-        if: matrix.os == 'ubuntu-latest'
-        run: npm run build:linux
-
       - name: Upload Windows artifacts
         if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v4
@@ -54,7 +50,6 @@ jobs:
           name: QRScanner-Windows
           path: |
             dist/*.exe
-            dist/*.zip
           retention-days: 30
 
       - name: Upload macOS artifacts
@@ -64,24 +59,15 @@ jobs:
           name: QRScanner-macOS
           path: |
             dist/*.dmg
-            dist/*.zip
-          retention-days: 30
-
-      - name: Upload Linux artifacts
-        if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: QRScanner-Linux
-          path: |
-            dist/*.AppImage
-            dist/*.deb
           retention-days: 30
 
   release:
     name: Create Release
     needs: build
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: github.ref == 'refs/heads/claude/cross-platform-startup-app-011CUqyRFgd5TCHN4F4nW1sc'
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout code
@@ -92,11 +78,40 @@ jobs:
         with:
           path: artifacts
 
+      - name: Get current date
+        id: date
+        run: echo "date=$(date +'%Y-%m-%d-%H%M')" >> $GITHUB_OUTPUT
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: build-${{ steps.date.outputs.date }}
+          name: QR Scanner Build ${{ steps.date.outputs.date }}
+          body: |
+            ## 自动构建版本
+
+            构建时间: ${{ steps.date.outputs.date }}
+            提交: ${{ github.sha }}
+
+            ### 下载说明
+
+            **Windows 用户**:
+            - 下载 `QR Scanner Setup 1.0.0.exe`
+            - 双击安装，如提示"Windows 已保护你的电脑"，点击"更多信息" → "仍要运行"
+
+            **macOS 用户**:
+            - 下载 `.dmg` 文件
+            - 打开后拖拽到应用程序文件夹
+            - 首次运行需右键点击 → "打开"
+
+            ### 功能特性
+            - ✅ 快捷键截图识别二维码（默认 Ctrl+Shift+Q）
+            - ✅ 系统托盘运行
+            - ✅ 开机自启动
+            - ✅ 自动打开网址或显示文本
           files: |
-            artifacts/**/*
+            artifacts/QRScanner-Windows/*
+            artifacts/QRScanner-macOS/*
           draft: false
           prerelease: false
         env:

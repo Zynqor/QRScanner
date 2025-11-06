@@ -6,14 +6,20 @@
 
 **不想安装 Node.js？没问题！**
 
-GitHub Actions 自动构建好了所有平台的可执行文件，直接下载即可使用：
+### 方式一：从 Release 下载（推荐）⭐
+
+访问 [Releases 页面](../../releases)，下载最新版本：
+
+- **Windows 用户**: 下载 `QR Scanner Setup 1.0.0.exe`
+- **macOS 用户**: 下载 `.dmg` 文件
+
+每次代码更新都会自动构建并发布新版本！
+
+### 方式二：从 Actions 下载
 
 1. 访问 [Actions 页面](../../actions)
 2. 点击最新的成功构建（绿色✅）
-3. 在页面底部下载你的系统对应的版本：
-   - **Windows**: 下载 `QRScanner-Windows`
-   - **macOS**: 下载 `QRScanner-macOS`
-   - **Linux**: 下载 `QRScanner-Linux`
+3. 在页面底部下载 Artifacts
 
 📖 详细下载指南请查看：[DOWNLOAD.md](DOWNLOAD.md)
 
@@ -21,7 +27,7 @@ GitHub Actions 自动构建好了所有平台的可执行文件，直接下载�
 
 ## 功能特性
 
-- **跨平台支持** - 支持 Windows、macOS 和 Linux
+- **跨平台支持** - 支持 Windows 和 macOS
 - **快捷键截图** - 自定义快捷键，快速启动截图识别
 - **智能识别** - 自动识别二维码内容
 - **智能处理**

@@ -2,7 +2,23 @@
 
 无需安装 Node.js 或 Electron 环境，GitHub Actions 会自动为你构建好所有平台的可执行文件！
 
-## 方法一：从 GitHub Actions 下载 (推荐)
+## 方法一：从 Release 下载 (最简单) ⭐
+
+**这是最推荐的方式！**
+
+1. **访问 [Releases 页面](../../releases)**
+
+2. **点击最新的 Release**（最上面那个）
+
+3. **下载对应系统的文件**：
+   - **Windows**: `QR Scanner Setup 1.0.0.exe`
+   - **macOS**: `QR Scanner-1.0.0.dmg` 或类似文件
+
+4. **直接安装使用**
+
+每次代码推送后会自动创建新的 Release，无需翻找 Actions！
+
+## 方法二：从 GitHub Actions 下载
 
 1. **访问 GitHub 仓库页面**
 
@@ -15,28 +31,21 @@
 
 4. **下载构建产物 (Artifacts)**
 
-   在构建详情页面底部，你会看到三个下载链接：
+   在构建详情页面底部，你会看到两个下载链接：
 
    - **QRScanner-Windows** - Windows 版本
-     - 包含 `.exe` 安装程序和 `.zip` 便携版
+     - 包含 `.exe` 安装程序
      - 适用于 Windows 10/11
 
    - **QRScanner-macOS** - macOS 版本
      - 包含 `.dmg` 磁盘映像
      - 适用于 macOS 10.13+
 
-   - **QRScanner-Linux** - Linux 版本
-     - 包含 `.AppImage` 和 `.deb` 包
-     - 适用于 Ubuntu/Debian 等
-
 5. **选择你的操作系统对应的版本，点击下载**
 
 6. **解压并运行**
-   - Windows: 双击 `.exe` 文件安装，或解压 `.zip` 直接运行
+   - Windows: 双击 `.exe` 文件安装
    - macOS: 打开 `.dmg` 并拖拽到应用程序文件夹
-   - Linux:
-     - AppImage: `chmod +x *.AppImage && ./QRScanner*.AppImage`
-     - Deb: `sudo dpkg -i *.deb`
 
 ## 方法二：触发新构建
 
@@ -49,13 +58,13 @@
 5. 等待约 5-10 分钟构建完成
 6. 按照方法一下载
 
-## 方法三：通过 Release 下载 (稳定版本)
+## 方法三：等待自动 Release
 
-如果仓库发布了 Release 版本：
+每次代码推送成功后，会自动创建一个新的 Release：
 
-1. 访问仓库主页
-2. 点击右侧的 "Releases" 标签
-3. 下载最新版本的安装包
+1. 访问 [Releases 页面](../../releases)
+2. 查看最新的 Release
+3. 直接下载安装包（比 Actions 更方便）
 
 ## 注意事项
 
@@ -68,22 +77,13 @@
 - 可能需要在 "系统偏好设置" → "安全性与隐私" 中允许运行
 - 或者右键点击应用 → "打开"
 
-### Linux 用户
-- AppImage 需要添加执行权限：`chmod +x *.AppImage`
-- 某些系统可能需要安装 `libfuse2`：`sudo apt install libfuse2`
-
 ## 文件说明
 
 ### Windows
-- `QR Scanner Setup *.exe` - 安装程序（推荐）
-- `QR Scanner *.zip` - 便携版（无需安装）
+- `QR Scanner Setup 1.0.0.exe` - 安装程序
 
 ### macOS
-- `QR Scanner-*.dmg` - 磁盘映像安装包
-
-### Linux
-- `QR Scanner-*.AppImage` - 通用格式（推荐）
-- `qr-scanner_*_amd64.deb` - Debian/Ubuntu 包
+- `QR Scanner-1.0.0.dmg` - 磁盘映像安装包
 
 ## 构建状态
 
