@@ -28,17 +28,14 @@
       "output": "dist"
     },
     "win": {
-      "target": ["nsis"],
-      "icon": "assets/icon.png"
+      "target": ["nsis"]
     },
     "mac": {
       "target": ["dmg"],
-      "icon": "assets/icon.png",
       "category": "public.app-category.utilities"
     },
     "linux": {
       "target": ["AppImage", "deb"],
-      "icon": "assets/icon.png",
       "category": "Utility"
     }
   }
