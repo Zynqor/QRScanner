@@ -233,10 +233,8 @@ app.on('will-quit', () => {
   globalShortcut.unregisterAll();
 });
 
-// Windows/Linux 下防止完全退出
-app.on('window-all-closed', (e) => {
-  // 不退出应用，保持在托盘
-  if (process.platform !== 'darwin') {
-    e.preventDefault();
-  }
+// 防止所有窗口关闭时退出应用（保持托盘运行）
+app.on('window-all-closed', () => {
+  // 不做任何事，让应用继续在托盘中运行
+  // 用户需要通过托盘菜单的"退出"来关闭应用
 });

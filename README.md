@@ -2,6 +2,23 @@
 
 一个简洁高效的桌面二维码扫描工具，支持快捷键截图识别二维码。
 
+## 📦 直接下载使用（无需安装环境）
+
+**不想安装 Node.js？没问题！**
+
+GitHub Actions 自动构建好了所有平台的可执行文件，直接下载即可使用：
+
+1. 访问 [Actions 页面](../../actions)
+2. 点击最新的成功构建（绿色✅）
+3. 在页面底部下载你的系统对应的版本：
+   - **Windows**: 下载 `QRScanner-Windows`
+   - **macOS**: 下载 `QRScanner-macOS`
+   - **Linux**: 下载 `QRScanner-Linux`
+
+📖 详细下载指南请查看：[DOWNLOAD.md](DOWNLOAD.md)
+
+---
+
 ## 功能特性
 
 - **跨平台支持** - 支持 Windows、macOS 和 Linux
