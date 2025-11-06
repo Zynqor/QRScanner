@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, Menu, globalShortcut, ipcMain, screen, desktopCapturer, shell } = require('electron');
+const { app, BrowserWindow, Tray, Menu, globalShortcut, ipcMain, screen, desktopCapturer, shell, clipboard, nativeImage, Notification } = require('electron');
 const path = require('path');
 const Store = require('electron-store');
 const { exec } = require('child_process');
@@ -7,9 +7,22 @@ const store = new Store();
 let tray = null;
 let settingsWindow = null;
 let screenshotWindow = null;
+let historyWindow = null;
 
 // 默认快捷键
 const DEFAULT_SHORTCUT = 'CommandOrControl+Shift+Q';
+const CLIPBOARD_SHORTCUT = 'CommandOrControl+Shift+V'; // 剪贴板识别
+const HISTORY_SHORTCUT = 'CommandOrControl+Shift+H'; // 历史记录
+
+// 初始化历史记录
+if (!store.get('history')) {
+  store.set('history', []);
+}
+
+// 初始化设置
+if (store.get('autoCopy') === undefined) {
+  store.set('autoCopy', true); // 默认开启自动复制
+}
 
 // 创建系统托盘
 function createTray() {
@@ -23,10 +36,23 @@ function createTray() {
         showSettingsWindow();
       }
     },
+    { type: 'separator' },
     {
-      label: '截图识别 (' + (store.get('shortcut', DEFAULT_SHORTCUT)) + ')',
+      label: '截图识别 (' + formatShortcut(store.get('shortcut', DEFAULT_SHORTCUT)) + ')',
       click: () => {
         captureScreen();
+      }
+    },
+    {
+      label: '识别剪贴板图片 (' + formatShortcut(CLIPBOARD_SHORTCUT) + ')',
+      click: () => {
+        recognizeClipboardImage();
+      }
+    },
+    {
+      label: '历史记录 (' + formatShortcut(HISTORY_SHORTCUT) + ')',
+      click: () => {
+        showHistoryWindow();
       }
     },
     { type: 'separator' },
@@ -188,14 +214,29 @@ function registerShortcut() {
   // 清除旧快捷键
   globalShortcut.unregisterAll();
 
+  // 截图识别快捷键
   const shortcut = store.get('shortcut', DEFAULT_SHORTCUT);
-
-  const ret = globalShortcut.register(shortcut, () => {
+  const ret1 = globalShortcut.register(shortcut, () => {
     captureScreen();
   });
+  if (!ret1) {
+    console.error('截图快捷键注册失败');
+  }
 
-  if (!ret) {
-    console.error('快捷键注册失败');
+  // 剪贴板识别快捷键
+  const ret2 = globalShortcut.register(CLIPBOARD_SHORTCUT, () => {
+    recognizeClipboardImage();
+  });
+  if (!ret2) {
+    console.error('剪贴板快捷键注册失败');
+  }
+
+  // 历史记录快捷键
+  const ret3 = globalShortcut.register(HISTORY_SHORTCUT, () => {
+    showHistoryWindow();
+  });
+  if (!ret3) {
+    console.error('历史记录快捷键注册失败');
   }
 }
 
@@ -203,7 +244,8 @@ function registerShortcut() {
 ipcMain.on('get-settings', (event) => {
   event.reply('settings-data', {
     shortcut: store.get('shortcut', DEFAULT_SHORTCUT),
-    autoStart: store.get('autoStart', false)
+    autoStart: store.get('autoStart', false),
+    autoCopy: store.get('autoCopy', true)
   });
 });
 
@@ -223,6 +265,15 @@ ipcMain.on('close-screenshot', () => {
 ipcMain.on('qr-detected', (event, text) => {
   if (screenshotWindow) {
     screenshotWindow.close();
+  }
+
+  // 保存到历史记录
+  addToHistory(text);
+
+  // 自动复制到剪贴板（如果启用）
+  if (store.get('autoCopy', true)) {
+    clipboard.writeText(text);
+    showNotification('已复制到剪贴板', text.length > 50 ? text.substring(0, 50) + '...' : text);
   }
 
   // 判断是否为网址
@@ -283,4 +334,197 @@ app.on('will-quit', () => {
 app.on('window-all-closed', () => {
   // 不做任何事，让应用继续在托盘中运行
   // 用户需要通过托盘菜单的"退出"来关闭应用
+});
+
+// ========== 新功能实现 ==========
+
+// 格式化快捷键显示
+function formatShortcut(shortcut) {
+  return shortcut
+    .replace('CommandOrControl', process.platform === 'darwin' ? 'Cmd' : 'Ctrl')
+    .replace(/\+/g, '+');
+}
+
+// 识别剪贴板中的图片
+async function recognizeClipboardImage() {
+  try {
+    const image = clipboard.readImage();
+
+    if (image.isEmpty()) {
+      showNotification('剪贴板中没有图片', '请先复制一张包含二维码的图片');
+      return;
+    }
+
+    // 显示识别中通知
+    showNotification('正在识别...', '识别剪贴板中的二维码');
+
+    // 将图片转换为 Data URL
+    const dataUrl = image.toDataURL();
+
+    // 创建临时识别窗口（不显示）
+    const recognizeWindow = new BrowserWindow({
+      show: false,
+      webPreferences: {
+        nodeIntegration: true,
+        contextIsolation: false
+      }
+    });
+
+    recognizeWindow.loadFile('src/recognize.html');
+
+    recognizeWindow.webContents.on('did-finish-load', () => {
+      recognizeWindow.webContents.send('recognize-image', dataUrl);
+    });
+
+    // 监听识别结果
+    ipcMain.once('recognize-result', (event, result) => {
+      recognizeWindow.close();
+
+      if (result.success) {
+        // 保存到历史记录
+        addToHistory(result.text);
+
+        // 自动复制
+        if (store.get('autoCopy', true)) {
+          clipboard.writeText(result.text);
+          showNotification('识别成功并已复制', result.text.length > 50 ? result.text.substring(0, 50) + '...' : result.text);
+        } else {
+          showNotification('识别成功', result.text);
+        }
+
+        // 打开结果
+        handleQRResult(result.text);
+      } else {
+        showNotification('识别失败', '未能识别到二维码，请确保图片清晰');
+      }
+    });
+
+  } catch (error) {
+    console.error('剪贴板识别失败:', error);
+    showNotification('识别失败', error.message);
+  }
+}
+
+// 处理二维码识别结果
+function handleQRResult(text) {
+  const urlPattern = /^(https?:\/\/|www\.)/i;
+
+  if (urlPattern.test(text) || text.includes('.com') || text.includes('.cn') || text.includes('.org')) {
+    // 是网址，用浏览器打开
+    let url = text;
+    if (!text.startsWith('http')) {
+      url = 'http://' + text;
+    }
+    shell.openExternal(url);
+  } else {
+    // 不是网址，用记事本显示
+    const tempFile = path.join(app.getPath('temp'), 'qr_result.txt');
+    const fs = require('fs');
+    fs.writeFileSync(tempFile, text, 'utf-8');
+
+    if (process.platform === 'win32') {
+      exec(`notepad "${tempFile}"`);
+    } else if (process.platform === 'darwin') {
+      exec(`open -a TextEdit "${tempFile}"`);
+    } else {
+      exec(`xdg-open "${tempFile}"`);
+    }
+  }
+}
+
+// 显示历史记录窗口
+function showHistoryWindow() {
+  if (historyWindow) {
+    historyWindow.focus();
+    return;
+  }
+
+  historyWindow = new BrowserWindow({
+    width: 400,
+    height: 500,
+    resizable: false,
+    autoHideMenuBar: true,
+    skipTaskbar: false,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false
+    },
+    icon: path.join(__dirname, 'assets', 'icon.png')
+  });
+
+  historyWindow.loadFile('src/history.html');
+
+  historyWindow.on('closed', () => {
+    historyWindow = null;
+  });
+}
+
+// 添加到历史记录
+function addToHistory(text) {
+  const history = store.get('history', []);
+
+  const isUrl = /^(https?:\/\/|www\.)/i.test(text) || text.includes('.com') || text.includes('.cn') || text.includes('.org');
+
+  const record = {
+    text: text,
+    type: isUrl ? 'url' : 'text',
+    timestamp: Date.now()
+  };
+
+  // 避免重复（检查最近10条）
+  const recentSame = history.slice(0, 10).find(item => item.text === text);
+  if (!recentSame) {
+    history.unshift(record);
+  }
+
+  // 只保留最近50条
+  if (history.length > 50) {
+    history.splice(50);
+  }
+
+  store.set('history', history);
+
+  // 如果历史记录窗口打开，通知更新
+  if (historyWindow) {
+    historyWindow.webContents.send('history-updated', history);
+  }
+}
+
+// 显示系统通知
+function showNotification(title, body) {
+  if (Notification.isSupported()) {
+    const notification = new Notification({
+      title: title,
+      body: body,
+      icon: path.join(__dirname, 'assets', 'icon.png'),
+      timeoutType: 'default'
+    });
+
+    notification.show();
+  }
+}
+
+// IPC: 获取历史记录
+ipcMain.on('get-history', (event) => {
+  const history = store.get('history', []);
+  event.reply('history-data', history);
+});
+
+// IPC: 清空历史记录
+ipcMain.on('clear-history', (event) => {
+  store.set('history', []);
+  event.reply('history-cleared');
+});
+
+// IPC: 删除单条历史记录
+ipcMain.on('delete-history-item', (event, timestamp) => {
+  let history = store.get('history', []);
+  history = history.filter(item => item.timestamp !== timestamp);
+  store.set('history', history);
+  event.reply('history-data', history);
+});
+
+// IPC: 打开历史记录项
+ipcMain.on('open-history-item', (event, text) => {
+  handleQRResult(text);
 });

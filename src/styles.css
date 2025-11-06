@@ -162,6 +162,30 @@ input[type="checkbox"] {
   user-select: none;
 }
 
+/* 快捷键信息 */
+.shortcuts-info {
+  margin-top: 12px;
+}
+
+.shortcut-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 14px;
+  color: #323130;
+}
+
+kbd {
+  background: #F3F2F1;
+  padding: 4px 10px;
+  border-radius: 2px;
+  font-family: "Consolas", "Courier New", monospace;
+  font-size: 13px;
+  color: #0078D4;
+  border: 1px solid #E5E5E5;
+}
+
 /* 按钮 */
 button {
   padding: 8px 20px;

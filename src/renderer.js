@@ -55,13 +55,15 @@ window.addEventListener('DOMContentLoaded', () => {
   // 保存按钮
   document.getElementById('save-btn').addEventListener('click', () => {
     const autoStart = document.getElementById('autoStart').checked;
+    const autoCopy = document.getElementById('autoCopy').checked;
+
     ipcRenderer.send('save-shortcut', currentShortcut);
 
-    // 保存开机自启设置
-    const { ipcRenderer: ipc } = require('electron');
+    // 保存设置
     const Store = require('electron-store');
     const store = new Store();
     store.set('autoStart', autoStart);
+    store.set('autoCopy', autoCopy);
 
     // 显示保存成功提示
     const btn = document.getElementById('save-btn');
@@ -90,6 +92,10 @@ ipcRenderer.on('settings-data', (event, data) => {
   currentShortcut = data.shortcut;
   document.getElementById('shortcut').value = formatShortcutDisplay(data.shortcut);
   document.getElementById('autoStart').checked = data.autoStart;
+  document.getElementById('autoCopy').checked = data.autoCopy;
+
+  // 更新快捷键显示
+  document.getElementById('shortcut-display').textContent = formatShortcutDisplay(data.shortcut);
 });
 
 ipcRenderer.on('shortcut-saved', (event, success) => {

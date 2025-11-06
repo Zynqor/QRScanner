@@ -41,12 +41,34 @@
       </div>
 
       <div class="setting-group">
-        <h2 class="setting-title">启动设置</h2>
+        <h2 class="setting-title">功能设置</h2>
         <div class="checkbox-group">
           <label class="checkbox-label">
             <input type="checkbox" id="autoStart">
             <span class="checkbox-text">开机自动启动</span>
           </label>
+          <label class="checkbox-label">
+            <input type="checkbox" id="autoCopy">
+            <span class="checkbox-text">识别成功后自动复制到剪贴板</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <h2 class="setting-title">所有快捷键</h2>
+        <div class="shortcuts-info">
+          <div class="shortcut-row">
+            <span>截图识别:</span>
+            <kbd id="shortcut-display">Ctrl + Shift + Q</kbd>
+          </div>
+          <div class="shortcut-row">
+            <span>识别剪贴板图片:</span>
+            <kbd>Ctrl + Shift + V</kbd>
+          </div>
+          <div class="shortcut-row">
+            <span>历史记录:</span>
+            <kbd>Ctrl + Shift + H</kbd>
+          </div>
         </div>
       </div>
 
