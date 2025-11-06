@@ -5,6 +5,24 @@ let isRecording = false;
 
 // 加载设置
 window.addEventListener('DOMContentLoaded', () => {
+  // 选项卡切换
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const tabContents = document.querySelectorAll('.tab-content');
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetTab = btn.getAttribute('data-tab');
+
+      // 移除所有active类
+      tabBtns.forEach(b => b.classList.remove('active'));
+      tabContents.forEach(c => c.classList.remove('active'));
+
+      // 添加active类到当前选项卡
+      btn.classList.add('active');
+      document.getElementById(targetTab).classList.add('active');
+    });
+  });
+
   ipcRenderer.send('get-settings');
 
   // 快捷键输入框点击事件

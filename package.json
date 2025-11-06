@@ -10,7 +10,7 @@
     "build:linux": "electron-builder --linux"
   },
   "keywords": ["qrcode", "scanner", "screenshot", "electron"],
-  "author": "",
+  "author": "QR Scanner Team",
   "license": "MIT",
   "devDependencies": {
     "electron": "^27.0.0",

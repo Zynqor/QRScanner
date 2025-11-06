@@ -8,46 +8,87 @@
 </head>
 <body>
   <div class="container">
-    <h1>⚙️ QR Scanner 设置</h1>
+    <div class="header">
+      <h1>QR Scanner</h1>
+      <p class="subtitle">二维码扫描工具</p>
+    </div>
 
-    <div class="section">
-      <h2>快捷键设置</h2>
-      <div class="form-group">
-        <label for="shortcut">截图识别快捷键:</label>
-        <input type="text" id="shortcut" readonly placeholder="点击后按下快捷键...">
-        <button id="reset-shortcut">重置为默认</button>
+    <!-- 选项卡导航 -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="settings">
+        <span class="tab-icon">⚙️</span>
+        <span>设置</span>
+      </button>
+      <button class="tab-btn" data-tab="help">
+        <span class="tab-icon">❓</span>
+        <span>使用说明</span>
+      </button>
+    </div>
+
+    <!-- 选项卡1: 设置 -->
+    <div class="tab-content active" id="settings">
+      <div class="setting-group">
+        <h2 class="setting-title">快捷键设置</h2>
+        <div class="form-group">
+          <label for="shortcut">截图识别快捷键</label>
+          <input type="text" id="shortcut" readonly placeholder="点击后按下快捷键...">
+          <button id="reset-shortcut" class="btn-secondary">重置为默认</button>
+        </div>
+        <p class="hint">
+          支持的修饰键: Ctrl, Shift, Alt<br>
+          示例: Ctrl+Shift+Q, Alt+Q
+        </p>
       </div>
-      <p class="hint">
-        支持的修饰键: Ctrl, Shift, Alt, Command (Mac)<br>
-        示例: Ctrl+Shift+Q, Alt+Q
-      </p>
-    </div>
 
-    <div class="section">
-      <h2>启动设置</h2>
-      <div class="form-group checkbox-group">
-        <label>
-          <input type="checkbox" id="autoStart">
-          开机自动启动
-        </label>
+      <div class="setting-group">
+        <h2 class="setting-title">启动设置</h2>
+        <div class="checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="autoStart">
+            <span class="checkbox-text">开机自动启动</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="footer">
+        <button id="save-btn" class="btn-primary">保存设置</button>
+        <button id="test-btn" class="btn-secondary">测试截图</button>
       </div>
     </div>
 
-    <div class="section">
-      <h2>使用说明</h2>
-      <ul class="instructions">
-        <li>按下快捷键开始截图</li>
-        <li>拖动鼠标选择二维码区域</li>
-        <li>释放鼠标自动识别</li>
-        <li>网址自动用浏览器打开</li>
-        <li>文本自动用记事本显示</li>
-        <li>按 ESC 键取消截图</li>
-      </ul>
-    </div>
+    <!-- 选项卡2: 使用说明 -->
+    <div class="tab-content" id="help">
+      <div class="help-section">
+        <h2 class="help-title">📸 如何使用</h2>
+        <ol class="help-list">
+          <li>按下快捷键开始截图</li>
+          <li>拖动鼠标选择二维码区域</li>
+          <li>释放鼠标自动识别</li>
+          <li>网址自动用浏览器打开</li>
+          <li>文本自动用记事本显示</li>
+          <li>按 ESC 键取消截图</li>
+        </ol>
 
-    <div class="footer">
-      <button id="save-btn" class="primary-btn">保存设置</button>
-      <button id="test-btn">测试截图</button>
+        <h2 class="help-title">💡 小技巧</h2>
+        <ul class="tip-list">
+          <li>确保二维码清晰完整</li>
+          <li>选择区域不要太小</li>
+          <li>可在托盘菜单中快速访问功能</li>
+          <li>支持自定义快捷键</li>
+        </ul>
+
+        <h2 class="help-title">❓ 常见问题</h2>
+        <div class="faq">
+          <p><strong>Q: 快捷键不生效？</strong></p>
+          <p>A: 请检查是否有其他软件占用了相同的快捷键。</p>
+
+          <p><strong>Q: 识别不到二维码？</strong></p>
+          <p>A: 确保选择区域包含完整二维码，且图像清晰。</p>
+
+          <p><strong>Q: 如何卸载？</strong></p>
+          <p>A: 右键点击托盘图标，选择"卸载程序"。</p>
+        </div>
+      </div>
     </div>
   </div>
 

@@ -76,9 +76,11 @@ function showSettingsWindow() {
   }
 
   settingsWindow = new BrowserWindow({
-    width: 500,
-    height: 400,
+    width: 600,
+    height: 480,
     resizable: false,
+    autoHideMenuBar: true,
+    skipTaskbar: false,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false
