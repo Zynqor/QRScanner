@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Scanner - 设置</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>⚙️ QR Scanner 设置</h1>
+
+    <div class="section">
+      <h2>快捷键设置</h2>
+      <div class="form-group">
+        <label for="shortcut">截图识别快捷键:</label>
+        <input type="text" id="shortcut" readonly placeholder="点击后按下快捷键...">
+        <button id="reset-shortcut">重置为默认</button>
+      </div>
+      <p class="hint">
+        支持的修饰键: Ctrl, Shift, Alt, Command (Mac)<br>
+        示例: Ctrl+Shift+Q, Alt+Q
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>启动设置</h2>
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" id="autoStart">
+          开机自动启动
+        </label>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>使用说明</h2>
+      <ul class="instructions">
+        <li>按下快捷键开始截图</li>
+        <li>拖动鼠标选择二维码区域</li>
+        <li>释放鼠标自动识别</li>
+        <li>网址自动用浏览器打开</li>
+        <li>文本自动用记事本显示</li>
+        <li>按 ESC 键取消截图</li>
+      </ul>
+    </div>
+
+    <div class="footer">
+      <button id="save-btn" class="primary-btn">保存设置</button>
+      <button id="test-btn">测试截图</button>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

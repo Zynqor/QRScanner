@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>截图识别</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      overflow: hidden;
+      cursor: crosshair;
+    }
+
+    #canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    #hint {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 15px 30px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-family: Arial, sans-serif;
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    #result {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(76, 175, 80, 0.95);
+      color: white;
+      padding: 15px 30px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: Arial, sans-serif;
+      z-index: 1000;
+      display: none;
+      max-width: 80%;
+      word-break: break-all;
+    }
+
+    .error {
+      background: rgba(244, 67, 54, 0.95) !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="hint">按住鼠标左键拖动选择区域，释放后自动识别 | 按 ESC 取消</div>
+  <div id="result"></div>
+  <canvas id="canvas"></canvas>
+
+  <script src="screenshot.js"></script>
+</body>
+</html>
