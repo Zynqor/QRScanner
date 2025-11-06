@@ -28,8 +28,7 @@
       "output": "dist"
     },
     "win": {
-      "target": ["nsis"],
-      "icon": "assets/icon.png"
+      "target": ["nsis"]
     },
     "nsis": {
       "oneClick": false,
@@ -38,14 +37,11 @@
       "createStartMenuShortcut": true,
       "shortcutName": "QR Scanner",
       "uninstallDisplayName": "QR Scanner - 二维码扫描工具",
-      "installerIcon": "assets/icon.png",
-      "uninstallerIcon": "assets/icon.png",
       "license": "LICENSE.txt",
       "menuCategory": true
     },
     "mac": {
       "target": ["dmg"],
-      "icon": "assets/icon.png",
       "category": "public.app-category.utilities"
     },
     "linux": {
