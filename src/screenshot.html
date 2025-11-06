@@ -120,6 +120,30 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
+
+    /* 重试按钮 */
+    #retry-btn {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 6px 16px;
+      border-radius: 4px;
+      font-size: 13px;
+      cursor: pointer;
+      margin-left: 12px;
+      transition: background 0.2s;
+      pointer-events: auto;
+    }
+
+    #retry-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    #result-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   </style>
 </head>
 <body>

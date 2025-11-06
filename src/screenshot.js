@@ -138,14 +138,7 @@ canvas.addEventListener('mouseup', (e) => {
   const height = Math.abs(currentY - startY);
 
   if (width < 10 || height < 10) {
-    showResult('❌ 选择区域太小，请重新选择', true);
-    setTimeout(() => {
-      // 重置状态，允许重新选择
-      hint.style.opacity = '1';
-      sizeInfo.style.display = 'none';
-      drawScreen();
-      resultDiv.style.display = 'none';
-    }, 1500);
+    showResult('❌ 选择区域太小，请重新选择', true, true);
     return;
   }
 
@@ -159,7 +152,8 @@ function recognizeQRCode(x, y, width, height) {
   sizeInfo.style.display = 'none';
 
   // 显示识别中状态
-  showResult('<span class="spinner"></span>正在识别二维码...', false, 'processing');
+  showResult('<span class="spinner"></span>正在识别二维码...', false, false);
+  resultDiv.classList.add('processing');
 
   // 使用 setTimeout 让UI有时间更新
   setTimeout(() => {
@@ -195,30 +189,54 @@ function recognizeQRCode(x, y, width, height) {
           ipcRenderer.send('qr-detected', code.data);
         }, 800);
       } else {
-        showResult('❌ 未识别到二维码，请确保选择区域包含完整的二维码', true);
-        setTimeout(() => {
-          ipcRenderer.send('close-screenshot');
-        }, 2000);
+        showResult('❌ 未识别到二维码，请确保选择区域包含完整的二维码', true, true);
       }
     } catch (error) {
-      showResult('❌ 识别失败: ' + error.message, true);
-      setTimeout(() => {
-        ipcRenderer.send('close-screenshot');
-      }, 2000);
+      showResult('❌ 识别失败: ' + error.message, true, true);
     }
   }, 100);
 }
 
 // 显示结果
-function showResult(message, isError = false, customClass = '') {
-  resultDiv.innerHTML = message;
+function showResult(message, isError = false, showRetry = false) {
+  if (showRetry) {
+    resultDiv.innerHTML = `
+      <div id="result-content">
+        <span>${message}</span>
+        <button id="retry-btn">🔄 重试</button>
+      </div>
+    `;
+  } else {
+    resultDiv.innerHTML = message;
+  }
+
   resultDiv.className = '';
   if (isError) {
     resultDiv.classList.add('error');
-  } else if (customClass) {
-    resultDiv.classList.add(customClass);
   }
   resultDiv.style.display = 'block';
+
+  // 绑定重试按钮事件
+  if (showRetry) {
+    const retryBtn = document.getElementById('retry-btn');
+    if (retryBtn) {
+      retryBtn.addEventListener('click', resetState);
+    }
+  }
+}
+
+// 重置状态，允许重新选择
+function resetState() {
+  isDrawing = false;
+  startX = 0;
+  startY = 0;
+  currentX = 0;
+  currentY = 0;
+  hint.style.opacity = '1';
+  hint.style.display = 'flex';
+  sizeInfo.style.display = 'none';
+  resultDiv.style.display = 'none';
+  drawScreen();
 }
 
 // ESC 键取消
