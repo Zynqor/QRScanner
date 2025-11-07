@@ -38,6 +38,9 @@
       "shortcutName": "QR Scanner",
       "uninstallDisplayName": "QR Scanner - 二维码扫描工具",
       "deleteAppDataOnUninstall": true,
+      "perMachine": false,
+      "allowElevation": true,
+      "include": "build/installer.nsh",
       "license": "LICENSE.txt",
       "menuCategory": true
     },
