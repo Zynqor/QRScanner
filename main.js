@@ -35,6 +35,7 @@ let tray = null;
 let settingsWindow = null;
 let screenshotWindow = null;
 let historyWindow = null;
+let isCapturing = false; // 防止快速连续截图导致创建多个窗口
 
 // 默认快捷键
 const DEFAULT_SHORTCUT = 'CommandOrControl+Shift+Q';
@@ -156,6 +157,16 @@ function showSettingsWindow() {
 
 // 截图功能
 async function captureScreen() {
+  // 防止重复调用：如果正在截图或截图窗口已存在，直接返回
+  if (isCapturing || (screenshotWindow && !screenshotWindow.isDestroyed())) {
+    if (screenshotWindow && !screenshotWindow.isDestroyed()) {
+      screenshotWindow.focus();
+    }
+    return;
+  }
+
+  isCapturing = true;
+
   try {
     // 获取鼠标当前位置
     const cursorPoint = screen.getCursorScreenPoint();
@@ -205,6 +216,9 @@ async function captureScreen() {
 
     screenshotWindow.loadFile('src/screenshot.html');
 
+    // 窗口创建成功，重置标志位
+    isCapturing = false;
+
     // 发送屏幕截图数据
     screenshotWindow.webContents.on('did-finish-load', () => {
       screenshotWindow.webContents.send('screenshot-source', targetSource.thumbnail.toDataURL());
@@ -212,10 +226,12 @@ async function captureScreen() {
 
     screenshotWindow.on('closed', () => {
       screenshotWindow = null;
+      isCapturing = false; // 窗口关闭时重置标志位
     });
 
   } catch (error) {
     console.error('截图失败:', error);
+    isCapturing = false; // 出错时重置标志位
   }
 }
 
