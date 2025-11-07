@@ -12,6 +12,24 @@ if (process.platform === 'win32') {
   app.setAppUserModelId('com.qrscanner.app');
 }
 
+// 单实例锁定（防止多开导致多个托盘图标）
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+  // 如果没有获取到锁，说明已经有实例在运行，直接退出
+  app.quit();
+} else {
+  // 当第二个实例启动时，聚焦到设置窗口（如果存在）
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    if (settingsWindow) {
+      if (settingsWindow.isMinimized()) settingsWindow.restore();
+      settingsWindow.focus();
+    } else {
+      showSettingsWindow();
+    }
+  });
+}
+
 const store = new Store();
 let tray = null;
 let settingsWindow = null;
@@ -35,6 +53,12 @@ if (store.get('autoCopy') === undefined) {
 
 // 创建系统托盘
 function createTray() {
+  // 如果托盘已存在，先销毁（避免创建多个托盘图标）
+  if (tray) {
+    tray.destroy();
+    tray = null;
+  }
+
   const iconPath = path.join(__dirname, 'assets', 'icon.png');
   tray = new Tray(iconPath);
 

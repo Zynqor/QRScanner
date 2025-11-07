@@ -37,6 +37,7 @@
       "createStartMenuShortcut": true,
       "shortcutName": "QR Scanner",
       "uninstallDisplayName": "QR Scanner - 二维码扫描工具",
+      "deleteAppDataOnUninstall": true,
       "license": "LICENSE.txt",
       "menuCategory": true
     },
