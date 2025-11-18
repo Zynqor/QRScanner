@@ -281,32 +281,52 @@ function openControlPanel() {
 
 // 注册全局快捷键
 function registerShortcut() {
-  // 清除旧快捷键
+  // 先取消所有已注册的快捷键，确保旧快捷键被清除
   globalShortcut.unregisterAll();
+  console.log('已清除所有旧快捷键');
 
   // 截图识别快捷键
   const shortcut = store.get('shortcut', DEFAULT_SHORTCUT);
-  const ret1 = globalShortcut.register(shortcut, () => {
-    captureScreen();
-  });
-  if (!ret1) {
-    console.error('截图快捷键注册失败');
+  try {
+    const ret1 = globalShortcut.register(shortcut, () => {
+      captureScreen();
+    });
+    if (!ret1) {
+      console.error(`截图快捷键注册失败: ${shortcut}`);
+      console.error('可能原因: 快捷键已被其他应用占用');
+    } else {
+      console.log(`截图快捷键注册成功: ${shortcut}`);
+    }
+  } catch (error) {
+    console.error(`截图快捷键注册异常: ${shortcut}`, error);
   }
 
   // 剪贴板识别快捷键
-  const ret2 = globalShortcut.register(CLIPBOARD_SHORTCUT, () => {
-    recognizeClipboardImage();
-  });
-  if (!ret2) {
-    console.error('剪贴板快捷键注册失败');
+  try {
+    const ret2 = globalShortcut.register(CLIPBOARD_SHORTCUT, () => {
+      recognizeClipboardImage();
+    });
+    if (!ret2) {
+      console.error(`剪贴板快捷键注册失败: ${CLIPBOARD_SHORTCUT}`);
+    } else {
+      console.log(`剪贴板快捷键注册成功: ${CLIPBOARD_SHORTCUT}`);
+    }
+  } catch (error) {
+    console.error(`剪贴板快捷键注册异常: ${CLIPBOARD_SHORTCUT}`, error);
   }
 
   // 历史记录快捷键
-  const ret3 = globalShortcut.register(HISTORY_SHORTCUT, () => {
-    showHistoryWindow();
-  });
-  if (!ret3) {
-    console.error('历史记录快捷键注册失败');
+  try {
+    const ret3 = globalShortcut.register(HISTORY_SHORTCUT, () => {
+      showHistoryWindow();
+    });
+    if (!ret3) {
+      console.error(`历史记录快捷键注册失败: ${HISTORY_SHORTCUT}`);
+    } else {
+      console.log(`历史记录快捷键注册成功: ${HISTORY_SHORTCUT}`);
+    }
+  } catch (error) {
+    console.error(`历史记录快捷键注册异常: ${HISTORY_SHORTCUT}`, error);
   }
 }
 
@@ -319,6 +339,37 @@ ipcMain.on('get-settings', (event) => {
   });
 });
 
+// 保存所有设置（统一处理）
+ipcMain.on('save-settings', (event, settings) => {
+  // 保存快捷键
+  if (settings.shortcut) {
+    store.set('shortcut', settings.shortcut);
+  }
+
+  // 保存自动复制
+  if (settings.autoCopy !== undefined) {
+    store.set('autoCopy', settings.autoCopy);
+  }
+
+  // 保存并应用开机自启动设置
+  if (settings.autoStart !== undefined) {
+    store.set('autoStart', settings.autoStart);
+    app.setLoginItemSettings({
+      openAtLogin: settings.autoStart,
+      openAsHidden: true
+    });
+  }
+
+  // 重新注册快捷键（如果快捷键有变化）
+  if (settings.shortcut) {
+    registerShortcut();
+  }
+
+  createTray(); // 重新创建托盘菜单以更新显示
+  event.reply('settings-saved', true);
+});
+
+// 兼容旧的 save-shortcut 事件（保留向后兼容）
 ipcMain.on('save-shortcut', (event, shortcut) => {
   store.set('shortcut', shortcut);
   registerShortcut();

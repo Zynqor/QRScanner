@@ -57,13 +57,12 @@ window.addEventListener('DOMContentLoaded', () => {
     const autoStart = document.getElementById('autoStart').checked;
     const autoCopy = document.getElementById('autoCopy').checked;
 
-    ipcRenderer.send('save-shortcut', currentShortcut);
-
-    // 保存设置
-    const Store = require('electron-store');
-    const store = new Store();
-    store.set('autoStart', autoStart);
-    store.set('autoCopy', autoCopy);
+    // 统一通过 IPC 发送所有设置给主进程
+    ipcRenderer.send('save-settings', {
+      shortcut: currentShortcut,
+      autoStart: autoStart,
+      autoCopy: autoCopy
+    });
 
     // 显示保存成功提示
     const btn = document.getElementById('save-btn');
@@ -96,6 +95,12 @@ ipcRenderer.on('settings-data', (event, data) => {
 
   // 更新快捷键显示
   document.getElementById('shortcut-display').textContent = formatShortcutDisplay(data.shortcut);
+});
+
+ipcRenderer.on('settings-saved', (event, success) => {
+  if (success) {
+    console.log('设置保存成功');
+  }
 });
 
 ipcRenderer.on('shortcut-saved', (event, success) => {
